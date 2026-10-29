@@ -1,0 +1,156 @@
+import {readdir, readFile} from "node:fs/promises"
+import { DOMParser, Element } from "jsr:@b-fuze/deno-dom";
+
+const files = await readdir("./")
+
+let html: string = ""
+
+// Haetaan ruokalista devatessa vain kerran verkon yli, jotta ei rasiteta palvelinta liikaa.
+// Muutoin luetaan tallennettu html-tiedosto, jos se on jo olemassa.
+if(files.includes("parsed.html")) {
+    html = await readFile("parsed.html", {encoding: "utf-8"})
+} else {
+
+    const url = new URL("https://www.compass-group.fi/ravintolat-ja-ruokalistat/foodco/kaupungit/rovaniemi/lapin-amk-tekuila-ja-cafe-lumen/")
+    
+    const response = await fetch(url)
+    html = await response.text()
+    
+    await Deno.writeTextFile("parsed.html", html)
+}
+
+const parse = new DOMParser()
+const doc = parse.parseFromString(html, "text/html")
+
+
+export interface Root {
+  "@context": string
+  "@type": string
+  name: string
+  "@id": string
+  image: string
+  url: string
+  email: string
+  telephone: string
+  address: Address
+  geo: Geo
+  openingHoursSpecification: OpeningHoursSpecification[]
+  hasMenu: HasMenu
+}
+
+export interface Address {
+  "@type": string
+  streetAddress: string
+  addressLocality: string
+  postalCode: string
+  addressCountry: string
+}
+
+export interface Geo {
+  "@type": string
+  latitude: number
+  longitude: number
+}
+
+export interface OpeningHoursSpecification {
+  "@type": string
+  dayOfWeek: string
+  opens: string
+  closes: string
+}
+
+export interface HasMenu {
+  "@type": string
+  name: string
+  hasMenuSection: HasMenuSection[]
+}
+
+export interface HasMenuSection {
+  "@type": string
+  validFrom: string
+  validThrough: string
+  hasMenuSection: HasMenuSection2[]
+}
+
+export interface HasMenuSection2 {
+  "@type": string
+  name: string
+  hasMenuItem: HasMenuItem[]
+}
+
+export interface HasMenuItem {
+  "@type": string
+  name: string
+  description: string
+  suitableForDiet?: string[]
+}
+
+
+const jsonData = doc.head.getElementById("restaurant-structured-data")?.textContent.trim() || ""
+
+
+
+const data = JSON.parse(jsonData) as Root
+
+/*  ],
+  "hasMenu": {
+    "@type": "Menu",
+    "name": "Lunch menu",
+    "hasMenuSection": [
+      {
+        "@type": "MenuSection",
+        "validFrom": "2026-10-19",
+        "validThrough": "2026-10-19",
+        "hasMenuSection": [
+          {
+            "@type": "MenuSection",
+            "name": "Vegaaninen kasvislounas ",
+            "hasMenuItem": [
+              {
+                "@type": "MenuItem",
+                "name": "Makean hapanta tofu-kasviswokkia - Tofua Kung Pao",
+                "suitableForDiet": [
+                  "https://schema.org/GlutenFreeDiet",
+                  "https://schema.org/VeganDiet"
+                ],
+                "description": "*, A, G, ILM, L, M, Veg, VS"
+              },
+              {
+                "@type": "MenuItem",
+                "name": "Tummaa riisiä",
+                "suitableForDiet": [
+                  "https://schema.org/GlutenFreeDiet",
+                  "https://schema.org/VeganDiet"
+                ],
+                "description": "*, G, L, M, Veg"
+              }
+            ]
+          }, */
+
+const menuSections = data.hasMenu.hasMenuSection
+
+
+
+console.log(data.hasMenu.name)
+
+for (const section of menuSections) {
+    console.log("\n\n")
+    console.log(new Date(section.validThrough).toLocaleDateString("fi-FI", { weekday: "long", day: "numeric", month: "long" }))
+    console.log("================================")
+    const subSections = section.hasMenuSection
+    for (const subSection of subSections) {
+
+        console.log(subSection.name)
+
+        subSection.hasMenuItem.forEach((item) => {
+            console.log(item.name)
+            console.log(item.description)
+        })
+    }
+
+}
+
+//console.log(menuSections[0].hasMenuSection[0].hasMenuItem[0].name)
+
+
+/* Deno.writeTextFile("parsed.json", JSON.stringify(data, null, 2)) */
