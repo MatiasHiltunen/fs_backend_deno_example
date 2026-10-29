@@ -88,54 +88,19 @@ export interface HasMenuItem {
 
 const jsonData = doc.head.getElementById("restaurant-structured-data")?.textContent.trim() || ""
 
-
-
 const data = JSON.parse(jsonData) as Root
 
-/*  ],
-  "hasMenu": {
-    "@type": "Menu",
-    "name": "Lunch menu",
-    "hasMenuSection": [
-      {
-        "@type": "MenuSection",
-        "validFrom": "2026-10-19",
-        "validThrough": "2026-10-19",
-        "hasMenuSection": [
-          {
-            "@type": "MenuSection",
-            "name": "Vegaaninen kasvislounas ",
-            "hasMenuItem": [
-              {
-                "@type": "MenuItem",
-                "name": "Makean hapanta tofu-kasviswokkia - Tofua Kung Pao",
-                "suitableForDiet": [
-                  "https://schema.org/GlutenFreeDiet",
-                  "https://schema.org/VeganDiet"
-                ],
-                "description": "*, A, G, ILM, L, M, Veg, VS"
-              },
-              {
-                "@type": "MenuItem",
-                "name": "Tummaa riisiä",
-                "suitableForDiet": [
-                  "https://schema.org/GlutenFreeDiet",
-                  "https://schema.org/VeganDiet"
-                ],
-                "description": "*, G, L, M, Veg"
-              }
-            ]
-          }, */
-
 const menuSections = data.hasMenu.hasMenuSection
-
-
 
 console.log(data.hasMenu.name)
 
 for (const section of menuSections) {
     console.log("\n\n")
-    console.log(new Date(section.validThrough).toLocaleDateString("fi-FI", { weekday: "long", day: "numeric", month: "long" }))
+
+    const datetime = Temporal.PlainDate.from(section.validFrom)
+
+    console.log(datetime.toPlainDateTime().toLocaleString("fi-FI", { dateStyle: "full" }))
+
     console.log("================================")
     const subSections = section.hasMenuSection
     for (const subSection of subSections) {
