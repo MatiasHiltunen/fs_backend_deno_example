@@ -8,7 +8,7 @@ export function handler(req: Request): Response {
     });
   }
 
-  return new Response("<h1>Welcome to Deno!</h1>", {
+  return new Response("<h1>Welcome to Deno! Full Stack pilot</h1>", {
     headers: { "content-type": "text/html" },
   });
 }
