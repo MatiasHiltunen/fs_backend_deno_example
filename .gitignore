@@ -2,3 +2,6 @@ uploads
 .vscode
 node_modules
 parsed.html
+tutorial-output/
+recordings/
+*.vsix

@@ -1,0 +1,17 @@
+{
+  "title": "T3: Ensimmäinen Deno-palvelin",
+  "paceMs": 38,
+  "steps": [
+    { "action": "open", "file": "tutorial-output/{{session}}/main.ts", "title": "Luo uusi main.ts" },
+    { "action": "type", "title": "Kirjoita HTTP-palvelin", "text": "// Deno suorittaa tämän tiedoston. Selain lähettää palvelimelle HTTP-pyynnön.\nDeno.serve({ hostname: \"127.0.0.1\", port: 8000 }, (request: Request) => {\n  const url = new URL(request.url);\n\n  if (request.method !== \"GET\") {\n    return new Response(\"Vain GET on sallittu.\", {\n      status: 405, headers: { Allow: \"GET\" },\n    });\n  }\n\n  if (url.pathname === \"/api/health\") {\n    return Response.json({ status: \"ok\", viesti: \"Backend vastasi.\" });\n  }\n\n  if (url.pathname === \"/\") {\n    return new Response(\"Hei! Palvelin toimii. Avaa /api/health.\", {\n      headers: { \"content-type\": \"text/plain; charset=utf-8\" },\n    });\n  }\n\n  return Response.json({ error: \"Osoitetta ei löydy.\" }, { status: 404 });\n});\n" },
+    { "action": "save", "title": "Tallenna tiedosto" },
+    { "action": "terminal", "id": "server", "command": "deno run --check --watch --allow-net=127.0.0.1:8000 tutorial-output/{{session}}/main.ts", "title": "Käynnistä palvelin terminaalissa" },
+    { "action": "checkpoint", "title": "Tarkista selain", "note": "Avaa portin 8000 yksityinen esikatselu. Tarkista / ja /api/health. Selitä GET-pyyntö ja JSON-vastaus. Valitse sitten Continue." },
+    { "action": "replace", "find": "Backend vastasi.", "text": "Muutos toimii.", "title": "Muuta vastauksen viesti" },
+    { "action": "save", "title": "Tallenna ja seuraa uudelleenkäynnistystä" },
+    { "action": "checkpoint", "title": "Päivitä selain", "note": "Päivitä /api/health. Viestin pitää olla Muutos toimii. --watch käynnistää backendin uudelleen; se ei päivitä selaimen sivua." },
+    { "action": "terminal", "id": "checks", "command": "curl --fail-with-body -sS -i http://127.0.0.1:8000/api/health", "waitForExit": true, "title": "Tarkista todellinen HTTP-vastaus" },
+    { "action": "checkpoint", "title": "Lue vastaus yhdessä", "note": "Etsi status 200, content-type application/json ja viesti Muutos toimii. Tarkista myös /ei-ole: sen pitää palauttaa 404. Valitse Continue lopettaaksesi palvelimen." },
+    { "action": "interrupt", "id": "server", "title": "Pysäytä palvelin Ctrl+C:llä" }
+  ]
+}

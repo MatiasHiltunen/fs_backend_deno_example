@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="studio-key" content="__STUDIO_KEY__">
+  <title>Full Stack Tutorial Studio</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#10191f;color:#e9f0f2}*{box-sizing:border-box}body{max-width:1100px;margin:auto;padding:40px 24px}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}h1{font-size:30px;letter-spacing:-1px;margin:8px 0}h2{font-size:19px;margin-top:0}p{color:#acbfc8;line-height:1.6}small,.eyebrow{color:#80d5c0}.eyebrow{letter-spacing:2px;font-size:12px;font-weight:700}.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:20px}.card{border:1px solid #35474f;border-radius:16px;padding:24px;background:#19272e}button,select{font:inherit;border-radius:8px;padding:11px 16px;border:1px solid #526971;background:#253941;color:#f3f8f9;cursor:pointer}button.primary{background:#8bdfc6;color:#10261e;border:0;font-weight:700}button.danger{background:#512e36;border-color:#82515d}button:disabled{opacity:.4;cursor:default}button:focus-visible,a:focus-visible{outline:3px solid #a7e7d6;outline-offset:3px}.buttons{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0}label{display:block;color:#c4d4da;margin:12px 0}input{margin-right:8px}select{margin-left:12px;padding:6px 10px}#clock{font:600 28px ui-monospace,monospace;letter-spacing:2px}#status,#lessonStatus{min-height:26px;overflow-wrap:anywhere}#status[data-error=true]{color:#ffb5b5}video{width:100%;max-height:540px;background:#090f12;border-radius:12px;margin-top:20px}a{color:#8bdfc6;margin-right:18px}#downloads{margin-top:18px}#downloads a{display:inline-block;margin-bottom:12px}#note{padding:12px;background:#11221f;border-left:3px solid #8bdfc6;line-height:1.5}ol{padding-left:22px;color:#bbccd3;line-height:1.7}progress{width:100%;accent-color:#8bdfc6}footer{margin-top:24px;font-size:13px;color:#8ca2ad}#fixture{display:none}@media(max-width:760px){.grid{grid-template-columns:1fr}header{align-items:flex-start;gap:20px}body{padding:24px 16px}}
+  </style>
+</head>
+<body>
+  <header><div><span class="eyebrow">FULL STACK · COURSE PRODUCTION</span><h1>Tutorial Studio</h1><p>Real code. Readable typing. A recording you can review.</p></div><div id="clock" aria-label="Recording elapsed time">00:00</div></header>
+  <main>
+    <div class="grid">
+      <section class="card" aria-labelledby="recordHeading">
+        <h2 id="recordHeading">1. Record the lesson</h2>
+        <p>Choose the editor tab, or the browser window to include switches to the running app. Keep this recorder in a separate window when capturing the whole browser window.</p>
+        <label><input id="tabAudio" type="checkbox">Include shared tab or window audio</label>
+        <label><input id="microphone" type="checkbox">Add microphone narration</label>
+        <div class="buttons"><button id="record" class="primary">Choose screen & record</button><button id="pauseCapture" disabled>Pause capture</button><button id="finish" class="danger" disabled>Finish recording</button></div>
+        <p id="status" role="status" aria-live="polite">Ready. Capture starts after you choose a source.</p>
+        <div id="downloads"></div>
+        <button id="selfTest">Test recorder with animation</button>
+        <p><small>The animation test checks recording and export. It does not record your editor.</small></p>
+      </section>
+      <section class="card" aria-labelledby="typingHeading">
+        <h2 id="typingHeading">2. Develop at a readable pace</h2>
+        <p>The Deno pilot creates a fresh file, types a server, starts it, pauses for a browser check, then edits its response.</p>
+        <label>Typing speed<select id="speed"><option value="0.65">Slow</option><option value="1" selected>Normal</option><option value="1.6">Brisk</option><option value="4">Rehearsal</option></select></label>
+        <div class="buttons"><button id="run" class="primary" disabled>Run pilot in 5 seconds</button><button id="pauseTyping" disabled>Pause typing</button><button id="next" disabled>Continue</button><button id="stopTyping" disabled>Stop typing</button></div>
+        <progress id="progress" value="0" max="1" aria-label="Lesson progress"></progress>
+        <p id="lessonStatus" role="status" aria-live="polite">Connecting to VS Code…</p>
+        <p id="note" hidden></p>
+        <ol><li>Start capture and choose its source.</li><li>Run the pilot and switch to VS Code.</li><li>At each checkpoint, inspect the result and choose Continue.</li><li>Finish recording and download the clip.</li></ol>
+      </section>
+    </div>
+    <video id="preview" controls playsinline muted aria-label="Recording preview" hidden></video>
+    <canvas id="fixture" width="1280" height="720"></canvas>
+  </main>
+  <footer>Clips stay in this browser until downloaded. Long takes stop at 256 MiB to protect the recording. Video export is WebM; the included converter produces MP4.</footer>
+  <script src="/recorder.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "name": "fullstack-tutorial-studio",
+  "displayName": "Full Stack Tutorial Studio",
+  "description": "Record a lesson and type real Deno code at a readable pace.",
+  "version": "0.1.1",
+  "publisher": "fullstack-course",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Education"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MatiasHiltunen/fs_backend_deno_example",
+    "directory": "tools/tutorial-studio"
+  },
+  "main": "./extension.cjs",
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "tutorialStudio.open",
+        "title": "Tutorial Studio: Open Recorder"
+      },
+      {
+        "command": "tutorialStudio.run",
+        "title": "Tutorial Studio: Run Deno Pilot"
+      },
+      {
+        "command": "tutorialStudio.pause",
+        "title": "Tutorial Studio: Pause or Resume Typing"
+      },
+      {
+        "command": "tutorialStudio.next",
+        "title": "Tutorial Studio: Continue from Checkpoint"
+      },
+      {
+        "command": "tutorialStudio.stop",
+        "title": "Tutorial Studio: Stop Typing"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "node --test test/*.test.cjs",
+    "recorder": "node serve.cjs",
+    "package": "vsce package --no-dependencies --out fullstack-tutorial-studio.vsix",
+    "convert": "node scripts/convert.mjs"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "4.1.0"
+  }
+}
