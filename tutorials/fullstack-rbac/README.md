@@ -3,6 +3,8 @@
 Deno 2.9.6 / TypeScript, HTML, CSS, JavaScript ja SQLite (`node:sqlite`). Ei npm-riippuvuuksia eikä
 frontendin käännösvaihetta. TypeScriptissä ei käytetä puolipisteitä.
 
+![Toimiva Tiimitaulu-sovellus palvelimen uudelleenkäynnistyksen jälkeen](docs/tiimitaulu.png)
+
 ## Käynnistä
 
 Asenna Deno 2.2 tai uudempi ja avaa tämä hakemisto VS Codessa. Suositeltu laajennus on
