@@ -25,13 +25,14 @@
       </section>
       <section class="card" aria-labelledby="typingHeading">
         <h2 id="typingHeading">2. Develop at a readable pace</h2>
-        <p>The Deno pilot creates a fresh file, types a server, starts it, pauses for a browser check, then edits its response.</p>
+        <p>The fullstack lesson creates a fresh project, uses native editor typing and IntelliSense, then verifies migrations, authentication and RBAC.</p>
         <label>Typing speed<select id="speed"><option value="0.65">Slow</option><option value="1" selected>Normal</option><option value="1.6">Brisk</option><option value="4">Rehearsal</option></select></label>
-        <div class="buttons"><button id="run" class="primary" disabled>Run pilot in 5 seconds</button><button id="pauseTyping" disabled>Pause typing</button><button id="next" disabled>Continue</button><button id="stopTyping" disabled>Stop typing</button></div>
+        <label>Start at step <input id="startStep" type="number" min="1" value="1" style="width:90px;margin-left:12px;padding:8px"></label>
+        <div class="buttons"><button id="run" class="primary" disabled>Run lesson in 5 seconds</button><button id="pauseTyping" disabled>Pause typing</button><button id="next" disabled>Continue</button><button id="stopTyping" disabled>Stop typing</button></div>
         <progress id="progress" value="0" max="1" aria-label="Lesson progress"></progress>
         <p id="lessonStatus" role="status" aria-live="polite">Connecting to VS Code…</p>
         <p id="note" hidden></p>
-        <ol><li>Start capture and choose its source.</li><li>Run the pilot and switch to VS Code.</li><li>At each checkpoint, inspect the result and choose Continue.</li><li>Finish recording and download the clip.</li></ol>
+        <ol><li>Start capture and choose its source.</li><li>Run the lesson and switch to VS Code.</li><li>At each checkpoint, inspect the result and choose Continue.</li><li>Finish recording and download the clip.</li></ol>
       </section>
     </div>
     <video id="preview" controls playsinline muted aria-label="Recording preview" hidden></video>

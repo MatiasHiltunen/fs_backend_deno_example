@@ -4,7 +4,13 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { LessonRunner } = require('./runner.cjs');
 const { startStudio } = require('./server.cjs');
-const lesson = require('./lessons/deno-pilot.json');
+const { typeSource } = require('./native-editor.cjs');
+const { rootedCommand } = require('./terminal-command.cjs');
+const lessons = {
+  'deno-pilot': require('./lessons/deno-pilot.json'),
+  fullstack: require('./lessons/fullstack.json'),
+  rehearsal: require('./lessons/rehearsal.json'),
+};
 let studio;
 
 function makeAdapter(root) {
@@ -14,6 +20,15 @@ function makeAdapter(root) {
     if (!editor || editor.document.isClosed || editor.document.version !== expectedVersion) throw new Error('The lesson document changed outside playback. Stop and start a new take to preserve your edits.');
   };
   return {
+    async prepare(relative) {
+      if (!relative.startsWith('tutorial-output/') || relative.split(/[\\/]/).includes('..')) throw new Error('Project must be inside tutorial-output/.');
+      const settings = vscode.workspace.getConfiguration('editor');
+      for (const [key, value] of Object.entries({ tabSize: 2, insertSpaces: true, autoClosingBrackets: 'languageDefined', autoClosingQuotes: 'languageDefined', autoIndent: 'full', formatOnSave: false, formatOnType: false, acceptSuggestionOnEnter: 'off', acceptSuggestionOnCommitCharacter: false, suggestOnTriggerCharacters: true })) {
+        await settings.update(key, value, vscode.ConfigurationTarget.Workspace);
+      }
+      await vscode.workspace.getConfiguration('deno').update('enablePaths', [relative + '/server', relative + '/scripts', relative + '/tests'], vscode.ConfigurationTarget.Workspace);
+      await vscode.workspace.getConfiguration('deno').update('enable', true, vscode.ConfigurationTarget.Workspace);
+    },
     async open(relative) {
       const realRoot = await fs.realpath(root);
       const target = path.resolve(realRoot, relative);
@@ -32,6 +47,36 @@ function makeAdapter(root) {
       const document = await vscode.workspace.openTextDocument(vscode.Uri.file(target));
       editor = await vscode.window.showTextDocument(document, { preview: false });
       expectedVersion = document.version;
+    },
+    async nativeType(text, hooks) {
+      check();
+      editor = await vscode.window.showTextDocument(editor.document, { preview: false });
+      const get = () => {
+        check();
+        if (vscode.window.activeTextEditor?.document !== editor.document) throw new Error('Editor focus changed during native typing.');
+        return vscode.window.activeTextEditor;
+      };
+      const changed = () => { expectedVersion = editor.document.version; editor = vscode.window.activeTextEditor; };
+      const before = editor.document.getText();
+      const offset = editor.document.offsetAt(editor.selection.active);
+      await typeSource(vscode, get, text, hooks, changed);
+      const expected = before.slice(0, offset) + text + before.slice(offset);
+      const actual = editor.document.getText();
+      if (actual !== expected) {
+        let at = 0; while (at < actual.length && actual[at] === expected[at]) at++;
+        const position = editor.document.positionAt(at);
+        throw new Error(`Native editor verification failed at line ${position.line + 1}: expected ${JSON.stringify(expected.slice(at, at + 60))}, got ${JSON.stringify(actual.slice(at, at + 60))}`);
+      }
+    },
+    async complete(expected, wait) {
+      check();
+      editor = await vscode.window.showTextDocument(editor.document, { preview: false });
+      await vscode.commands.executeCommand('editor.action.triggerSuggest');
+      await wait(1300);
+      await vscode.commands.executeCommand('acceptSelectedSuggestion');
+      expectedVersion = editor.document.version;
+      if (!editor.document.getText().trimEnd().endsWith(expected)) throw new Error('IntelliSense did not produce the expected completion.');
+      await wait(700);
     },
     async insert(text) {
       check();
@@ -53,6 +98,7 @@ function makeAdapter(root) {
     },
     async save() { check(); if (!await editor.document.save()) throw new Error('Could not save the lesson file.'); },
     async terminal(id, command, waitForExit, type) {
+      command = rootedCommand(command, root);
       let terminal = terminals.get(id);
       if (!terminal || terminal.exitStatus) {
         terminal = vscode.window.createTerminal({ name: `Tutorial: ${id}`, cwd: root });
@@ -68,7 +114,7 @@ function makeAdapter(root) {
       if (waitForExit) {
         if (!terminal.shellIntegration) throw new Error('Terminal shell integration is required to verify command completion. Enable it and start a new take. The command has not been executed.');
         finish = new Promise((resolve, reject) => {
-          const timer = setTimeout(() => { subscription.dispose(); reject(new Error('Command completion timed out after 30 seconds. Inspect the terminal.')); }, 30000);
+          const timer = setTimeout(() => { subscription.dispose(); reject(new Error('Command completion timed out after 120 seconds. Inspect the terminal.')); }, 120000);
           const subscription = vscode.window.onDidEndTerminalShellExecution(event => {
             if (event.terminal !== terminal) return;
             clearTimeout(timer); subscription.dispose();
@@ -97,9 +143,11 @@ async function activate(context) {
     status.text = `$(record) Studio: ${state.phase} ${state.step}/${state.total}`;
     status.tooltip = state.error || state.note || state.title;
     if (state.phase === 'error') vscode.window.showErrorMessage(state.error);
-    if (state.phase === 'checkpoint') vscode.window.showInformationMessage(`${state.title}: ${state.note}`, 'Continue').then(value => { if (value) runner.next(); });
+    // The recorder shows checkpoint notes; avoid covering the code with toasts.
   });
   const open = async () => {
+    const name = vscode.workspace.getConfiguration('tutorialStudio').get('lesson', 'fullstack');
+    const lesson = lessons[name] || lessons.fullstack;
     if (!studio) studio = await startStudio({ runner, lesson });
     const uri = await vscode.env.asExternalUri(vscode.Uri.parse(`http://127.0.0.1:${studio.port}/`));
     await vscode.env.openExternal(uri);
@@ -107,11 +155,14 @@ async function activate(context) {
   context.subscriptions.push(status, { dispose: () => { runner.stop(); adapter.dispose(); studio?.server.close(); studio = undefined; } });
   const commands = {
     open,
-    run: () => runner.run(lesson),
+    run: () => runner.run(lessons[vscode.workspace.getConfiguration('tutorialStudio').get('lesson', 'fullstack')] || lessons.fullstack),
     pause: () => runner.pause(),
     next: () => runner.next(),
     stop: () => runner.stop()
   };
   for (const [name, handler] of Object.entries(commands)) context.subscriptions.push(vscode.commands.registerCommand(`tutorialStudio.${name}`, handler));
 }
-module.exports = { activate };
+async function deactivate() {
+  if (studio) { await studio.close(); studio = undefined; }
+}
+module.exports = { activate, deactivate };

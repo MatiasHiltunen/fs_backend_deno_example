@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tiimitaulu · Full Stack</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">t<span>Tiimitaulu</span></a>
+      <span class="course">FULL STACK / DENO + SQLITE</span>
+      <div id="identity"></div>
+    </header>
+    <main>
+      <section id="auth" class="welcome">
+        <div>
+          <p class="eyebrow">YHTEINEN SUUNTA</p>
+          <h1>Pienet tehtävät.<br>Toimiva tiimi.</h1>
+          <p
+            class="intro">Yksi taulu tiimin tehtäville. Jokaisella käyttäjällä on oma tunnus ja selkeä rooli.</p>
+          <div class="roles">
+            <p><strong>01 / Katselija</strong> Lukee yhteisen taulun.</p>
+            <p><strong>02 / Muokkaaja</strong> Lisää ja muuttaa tehtäviä.</p>
+            <p><strong>03 / Ylläpitäjä</strong> Hallitsee myös käyttäjiä.</p>
+          </div>
+        </div>
+        <section class="card login-card">
+          <div class="tabs">
+            <button id="login-tab" class="selected" type="button">Kirjaudu</button>
+            <button id="register-tab" type="button">Luo tunnus</button>
+          </div>
+          <h2 id="auth-title">Tervetuloa takaisin</h2>
+          <form id="auth-form">
+            <label id="name-label"
+              hidden>Nimi<input name="name" autocomplete="name" maxlength="80"></label>
+            <label>Sähköposti<input name="email" type="email" autocomplete="username" required></label>
+            <label>Salasana<input name="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></label>
+            <button class="primary" id="auth-submit">Kirjaudu sisään</button>
+          </form>
+          <p class="muted"
+            id="auth-note">Oikeutesi tarkistetaan palvelimella jokaisessa pyynnössä.</p>
+        </section>
+      </section>
+      <section id="workspace" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">YHTEINEN TYÖTILA</p>
+            <h1>Tiimin tehtävät</h1>
+          </div>
+          <nav><button id="tasks-tab" class="selected">Tehtävät</button><button id="users-tab" hidden>Käyttäjät</button></nav>
+        </div>
+        <section id="tasks-view">
+          <div class="stats" id="stats"></div>
+          <div class="task-layout">
+            <section class="card task-list-card">
+              <div
+                class="section-heading"><h2>Tehtävätaulu</h2><span class="muted">Tallennettu SQLiteen</span></div>
+              <div class="tabs" id="filters">
+                <button data-filter="all" class="selected">Kaikki</button>
+                <button data-filter="open">Kesken</button>
+                <button data-filter="done">Valmiit</button>
+              </div>
+              <ul id="task-list"></ul>
+              <p id="empty" class="empty" hidden>Ei tehtäviä tässä näkymässä.</p>
+            </section>
+            <aside class="card compose">
+              <h2>Seuraava askel</h2>
+              <p id="read-only"
+                hidden>Sinulla on lukuoikeus. Pyydä ylläpitäjältä muokkaajan rooli, jos haluat lisätä tehtäviä.</p>
+              <form id="task-form">
+                <label>Tehtävän nimi<input name="title" maxlength="160" placeholder="Mitä tehdään seuraavaksi?" required></label>
+                <label>Prioriteetti<select name="priority"><option value="normal">Normaali</option><option value="high">Tärkeä</option><option value="low">Matala</option></select></label>
+                <button class="primary">Lisää tehtävä</button>
+              </form>
+              <p
+                class="muted">Tieto säilyy myös sivun päivityksen ja palvelimen uudelleenkäynnistyksen yli.</p>
+            </aside>
+          </div>
+        </section>
+        <section id="users-view" hidden>
+          <div class="task-layout">
+            <section class="card">
+              <h2>Käyttäjät ja oikeudet</h2>
+              <p
+                class="muted">Roolin muutos vaikuttaa seuraavaan pyyntöön. Sulkeminen päättää käyttäjän istunnot.</p>
+              <div id="user-list"></div>
+            </section>
+            <aside class="card compose">
+              <h2>Uusi käyttäjä</h2>
+              <form id="user-form">
+                <label>Nimi<input name="name" maxlength="80" required></label>
+                <label>Sähköposti<input name="email" type="email" required></label>
+                <label>Väliaikainen salasana<input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
+                <label>Rooli<select name="role"><option value="viewer">Katselija</option><option value="editor">Muokkaaja</option><option value="admin">Ylläpitäjä</option></select></label>
+                <button class="primary">Luo käyttäjä</button>
+              </form>
+            </aside>
+          </div>
+        </section>
+      </section>
+      <!-- Viesti on olemassa jo ennen päivitystä, joten ruudunlukija voi ilmoittaa muutoksen. -->
+      <p id="status" role="status" aria-live="polite"></p>
+      <p id="error" role="alert"></p>
+    </main>
+    <footer>Tiimitaulu <span>Selain → HTTP → Deno → SQLite</span></footer>
+  </body>
+</html>

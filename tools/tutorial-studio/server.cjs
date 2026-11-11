@@ -40,7 +40,12 @@ async function startStudio({ runner, lesson, port = 7331, host = '127.0.0.1' } =
       if (command.action === 'run') {
         if (runner.busy) { send(409, { error: 'A lesson is already running.' }); return; }
         if (!(Number(command.speed) >= 0.25 && Number(command.speed) <= 4)) { send(400, { error: 'Invalid speed' }); return; }
-        runner.run(lesson, Number(command.speed)).catch(error => runner.update({ phase: 'error', error: error.message }));
+        const startStep = command.startStep ?? 1;
+        if (!Number.isInteger(startStep) || startStep < 1 || startStep > (lesson?.steps?.length || 1) ||
+          (startStep > 1 && (!lesson.resumeStable || !['open', 'terminal', 'checkpoint'].includes(lesson.steps[startStep - 1].action)))) {
+          send(400, { error: 'Choose an open-file, terminal or checkpoint step in a resumable lesson.' }); return;
+        }
+        runner.run(lesson, Number(command.speed), startStep).catch(error => runner.update({ phase: 'error', error: error.message }));
       } else if (command.action === 'pause') runner.pause();
       else if (command.action === 'next') runner.next();
       else if (command.action === 'stop') runner.stop();
@@ -48,7 +53,16 @@ async function startStudio({ runner, lesson, port = 7331, host = '127.0.0.1' } =
       send(200, runner.snapshot());
     } catch (error) { if (!res.headersSent) send(500, { error: error.message }); else res.end(); }
   });
-  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, host, resolve); });
+  const listen = requested => new Promise((resolve, reject) => {
+    const fail = error => { server.removeListener('listening', ready); reject(error); };
+    const ready = () => { server.removeListener('error', fail); resolve(); };
+    server.once('error', fail); server.once('listening', ready); server.listen(requested, host);
+  });
+  try { await listen(port); }
+  catch (error) {
+    if (error.code !== 'EADDRINUSE' || port !== 7331) throw error;
+    await listen(0);
+  }
   return { server, port: server.address().port, close: () => new Promise(resolve => server.close(resolve)) };
 }
 module.exports = { startStudio };

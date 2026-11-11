@@ -4,7 +4,7 @@ A recorder and a VS Code extension for producing the course's hands-on Deno less
 
 ## Start in Codespaces
 
-1. Open this repository in a Codespace, then switch to `tutorial/recording-studio` or extract the supplied kit into the workspace. Deno 2.9.6 and Node 20 or newer are the tested tools.
+1. Open this repository in a Codespace, then switch to `tutorial/fullstack-sqlite-rbac` or extract the supplied kit into the workspace. Deno 2.9.6 and Node 20 or newer are the tested tools.
 2. In the Codespace terminal, build and install the extension:
 
    ```sh
@@ -15,9 +15,9 @@ A recorder and a VS Code extension for producing the course's hands-on Deno less
    ```
 
 3. Open the Command Palette and run **Developer: Reload Window** if the extension is not yet available.
-4. Run **Tutorial Studio: Open Recorder**. VS Code opens its private forwarded URL on port 7331. Keep the port private.
+4. Run **Tutorial Studio: Open Recorder**. VS Code opens its private forwarded URL on port 7331 or an available private port if it is already in use. Keep the port private.
 5. Choose **Choose screen & record**. The browser asks which surface to share. Choose the editor tab for code only, or a browser window to include switching to the live app. For window capture, place the recorder in a separate window.
-6. Choose **Run pilot in 5 seconds**, then switch to the editor. Use **Continue** at the pilot's browser checkpoints.
+6. Choose **Run lesson in 5 seconds**, then switch to the editor. Use **Continue** at the lesson's checkpoints.
 7. Choose **Finish recording** and download the WebM clip and chapter notes. Review the video before using it in the course.
 
 You must select the capture surface for each recording. A browser's sharing permission cannot be pre-granted by the tool. This also depends on the browser exposing a usable capture surface; an isolated cloud browser may not do so.
@@ -26,18 +26,20 @@ To use only the recorder, run `npm run recorder` from this directory, then open 
 
 ## Rehearse and control playback
 
-The normal speed adds small variations and longer pauses at line endings and punctuation. Choose **Slow** for an explanation or **Rehearsal** for a quick check. The extension never invents mistakes or fabricated terminal output.
+The fullstack lesson uses VS Code’s native typing commands. Language-aware brace and quote pairs, Enter indentation, diagnostics and suggestions stay active. It accepts a real `Deno.version` IntelliSense completion and checks that the resulting source matches the tested example. Fast bursts vary in length and timing, with pauses at structural keys and explanations. TypeScript source omits semicolons. Choose **Slow** for an explanation or **Rehearsal** for a quick check. The extension never invents mistakes or fabricated terminal output.
 
-Each take creates a fresh `tutorial-output/take-…/main.ts`. The existing course examples remain available. **Stop typing** preserves the partial file; manual edits during playback stop subsequent automated edits. Stopping typing does not terminate commands already running in a terminal; use Ctrl+C there when needed.
+The fullstack lesson creates a new `tutorial-output/tiimitaulu/` project. Existing files are never overwritten. Rename that folder before starting another complete take. A long lesson may be recorded in chapters: download the current clip, then set **Start at step** to the next open-file, terminal or checkpoint step. Saved earlier files are preserved. Terminal project paths are resolved from the workspace even when reusing a shell. The small editor rehearsal uses a fresh `tutorial-output/take-…/` folder. The existing course examples remain available. **Stop typing** preserves the partial file; manual edits during playback stop subsequent automated edits. Stopping typing does not terminate commands already running in a terminal; use Ctrl+C there when needed.
 
 | Command Palette action | Purpose |
 | --- | --- |
-| Tutorial Studio: Run Deno Pilot | Start a rehearsal directly in the editor |
+| Tutorial Studio: Run Current Lesson | Start a rehearsal directly in the editor |
 | Tutorial Studio: Pause or Resume Typing | Pause between characters or continue |
 | Tutorial Studio: Continue from Checkpoint | Proceed after inspecting the browser |
 | Tutorial Studio: Stop Typing | End playback and preserve progress |
 
-The pilot follows chapter 04 / T3 of the supplied course material: `/`, `/api/health`, a changed JSON message, and an unknown route returning 404. A final `curl` command waits for the real terminal exit status through VS Code shell integration. If that integration is unavailable, playback stops and explains the missing requirement.
+Select `tutorialStudio.lesson` as `fullstack` (default), `rehearsal`, or `deno-pilot`, then reload the window. The fullstack lesson follows the course’s HTML/CSS/JavaScript frontend and Deno/TypeScript backend, builds SQLite migrations, implements three roles and user management, runs automated and live HTTP checks, then restarts the app to prove persistence.
+
+The optional pilot follows chapter 04 / T3 of the supplied course material: `/`, `/api/health`, a changed JSON message, and an unknown route returning 404. A final `curl` command waits for the real terminal exit status through VS Code shell integration. If that integration is unavailable, playback stops and explains the missing requirement.
 
 Make sure another server is not already using port 8000. The pilot ends by sending Ctrl+C to its server terminal.
 
@@ -60,7 +62,7 @@ The converter produces 30 fps H.264 video, preserves available audio, and refuse
 
 ## Customize a lesson
 
-Edit `lessons/deno-pilot.json` before packaging. `paceMs` sets the base character delay. Steps support `open`, `type`, `replace`, `save`, `wait`, `terminal`, `checkpoint`, and `interrupt`. Files must be new files below `tutorial-output/`; `{{session}}` becomes a fresh take identifier. A replacement must match exactly once. Terminal commands are explicitly authored in the lesson file; the web controls cannot submit arbitrary commands.
+Edit the selected JSON file in `lessons/` before packaging. Keep fullstack source and lesson text synchronized with `tutorials/fullstack-rbac/`. `paceMs` sets the base character delay. Steps support `prepare`, `open`, `native`, `complete`, `type`, `replace`, `save`, `wait`, `terminal`, `checkpoint`, and `interrupt`. `native` uses editor typing and verifies the source; `complete` opens and accepts the actual IntelliSense widget. The older `type` action performs literal edits for the original pilot. Files must be new files below `tutorial-output/`; `{{session}}` becomes a fresh take identifier. A replacement must match exactly once. Terminal commands are explicitly authored in the lesson file; the web controls cannot submit arbitrary commands.
 
 ## Validate
 
@@ -70,3 +72,5 @@ npm run package
 ```
 
 The unit tests cover cancellation, pause/resume, checkpoint behavior, path boundaries, failed commands, and the recorder's control boundary. Also run the animation self-test in a real browser and review an exported clip. The recorder server binds to loopback and requires a session key for playback controls. No passwords, browser cookies, or account tokens are needed by this extension.
+
+Pairing uses `languageDefined`, including quoted negative-test input. Native HTML comment endings are reused. The fullstack preview commands derive their origin from `CODESPACE_NAME` and `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN`. For a local recording, replace the three preview expressions with `http://127.0.0.1:8000`.

@@ -49,11 +49,15 @@ class LessonRunner extends EventEmitter {
       await this.wait((pace + this.random() * pace * 0.65 + extra) / this.speed);
     }
   }
-  async run(lesson, speed = 1) {
+  async run(lesson, speed = 1, startStep = 1) {
     if (this.busy) throw new Error('A lesson is already running.');
     if (!Array.isArray(lesson.steps) || !lesson.steps.length) throw new Error('Lesson needs steps.');
     if (!(speed >= 0.25 && speed <= 4)) throw new Error('Speed must be between 0.25 and 4.');
-    const actions = new Set(['open', 'type', 'replace', 'save', 'wait', 'checkpoint', 'terminal', 'interrupt']);
+    if (!Number.isInteger(startStep) || startStep < 1 || startStep > lesson.steps.length) throw new Error('Invalid start step.');
+    if (startStep > 1 && (!lesson.resumeStable || !['open', 'terminal', 'checkpoint'].includes(lesson.steps[startStep - 1].action))) {
+      throw new Error('Resume requires a stable project and an open-file, terminal or checkpoint step.');
+    }
+    const actions = new Set(['prepare', 'open', 'type', 'native', 'complete', 'replace', 'save', 'wait', 'checkpoint', 'terminal', 'interrupt']);
     for (const step of lesson.steps) {
       if (!actions.has(step.action)) throw new Error(`Unknown lesson action: ${step.action}`);
       if (step.action === 'open' && (path.isAbsolute(step.file) || step.file.split(/[\\/]/).includes('..') || !step.file.startsWith('tutorial-output/'))) {
@@ -65,17 +69,26 @@ class LessonRunner extends EventEmitter {
     this.speed = speed;
     this.session = `take-${this.now()}-${Math.floor(this.random() * 1e6)}`;
     this.started = this.now();
-    this.update({ phase: 'running', title: lesson.title, step: 0, total: lesson.steps.length, session: this.session, markers: [], error: null });
+    this.update({ phase: 'running', title: lesson.title, step: startStep - 1, total: lesson.steps.length, session: this.session, markers: [], error: null });
     const expand = text => String(text).replaceAll('{{session}}', this.session);
     try {
-      for (let i = 0; i < lesson.steps.length; i++) {
+      for (let i = startStep - 1; i < lesson.steps.length; i++) {
         await this.gate();
         const step = lesson.steps[i];
         const title = step.title || step.action;
         this.state.markers.push({ atMs: this.now() - this.started, title, action: step.action });
         this.update({ step: i + 1, title });
         switch (step.action) {
+          case 'prepare': await this.adapter.prepare(expand(step.directory)); break;
           case 'open': await this.adapter.open(expand(step.file)); break;
+          case 'native':
+            await this.adapter.nativeType(step.text, {
+              gate: () => this.gate(), wait: ms => this.wait(ms / this.speed),
+              random: this.random, pace: lesson.paceMs ?? 12,
+              slowStart: step.slowStart === true,
+            });
+            break;
+          case 'complete': await this.adapter.complete(step.expected, ms => this.wait(ms)); break;
           case 'type': await this.type(step.text, ch => this.adapter.insert(ch), lesson.paceMs || 45); break;
           case 'replace':
             await this.adapter.selectUnique(step.find);

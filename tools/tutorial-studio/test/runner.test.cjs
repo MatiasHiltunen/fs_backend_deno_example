@@ -63,3 +63,27 @@ test('pause freezes typing and resume continues without skipping characters', as
   assert.equal(f.text(), 'a'); assert.equal(f.runner.state.phase, 'paused');
   f.runner.pause(); await pending; assert.equal(f.text(), 'abc');
 });
+test('native playback uses editor commands and stops if source verification fails', async () => {
+  const f = fixture();
+  let source;
+  f.adapter.nativeType = async (text, hooks) => { source = text; await hooks.gate(); throw new Error('Native editor verification failed'); };
+  const result = await f.runner.run({ steps: [
+    { action: 'native', text: 'function hello() {\n  return "hello"\n}\n' },
+    { action: 'terminal', id: 'checks', command: 'must-not-run' }
+  ] });
+  assert.match(source, /function hello/); assert.equal(result.phase, 'error'); assert.equal(f.commands.length, 0);
+});
+test('resume starts at the unfinished terminal without opening existing files', async () => {
+  const f = fixture();
+  const result = await f.runner.run({ resumeStable: true, steps: [
+    { action: 'open', file: 'tutorial-output/project/main.ts' },
+    { action: 'terminal', id: 'checks', command: 'deno task test', waitForExit: true }
+  ] }, 4, 2);
+  assert.equal(result.phase, 'finished'); assert.equal(f.files.length, 0);
+  assert.equal(f.commands.length, 1); assert.equal(result.markers.length, 1);
+});
+test('resume rejects an unsafe entry point or a changing output directory', async () => {
+  const f = fixture();
+  await assert.rejects(f.runner.run({ steps: [{ action: 'wait', ms: 0 }, { action: 'terminal', id: 'checks', command: 'pwd' }] }, 1, 2), /stable project/);
+  await assert.rejects(f.runner.run({ resumeStable: true, steps: [{ action: 'wait', ms: 0 }, { action: 'native', text: 'x' }] }, 1, 2), /stable project/);
+});

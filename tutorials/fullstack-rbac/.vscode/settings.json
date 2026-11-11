@@ -1,0 +1,13 @@
+{
+  "deno.enablePaths": ["server", "scripts", "tests"],
+  "deno.lint": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.autoClosingBrackets": "languageDefined",
+  "editor.autoClosingQuotes": "languageDefined",
+  "editor.autoIndent": "full",
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.quickSuggestions": { "other": "on", "comments": "off", "strings": "off" },
+  "js/ts.format.semicolons": "remove",
+  "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" }
+}

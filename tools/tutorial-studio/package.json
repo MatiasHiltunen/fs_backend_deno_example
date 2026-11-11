@@ -2,7 +2,7 @@
   "name": "fullstack-tutorial-studio",
   "displayName": "Full Stack Tutorial Studio",
   "description": "Record a lesson and type real Deno code at a readable pace.",
-  "version": "0.1.1",
+  "version": "0.2.3",
   "publisher": "fullstack-course",
   "license": "MIT",
   "engines": {
@@ -33,7 +33,7 @@
       },
       {
         "command": "tutorialStudio.run",
-        "title": "Tutorial Studio: Run Deno Pilot"
+        "title": "Tutorial Studio: Run Current Lesson"
       },
       {
         "command": "tutorialStudio.pause",
@@ -47,7 +47,22 @@
         "command": "tutorialStudio.stop",
         "title": "Tutorial Studio: Stop Typing"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Tutorial Studio",
+      "properties": {
+        "tutorialStudio.lesson": {
+          "type": "string",
+          "enum": [
+            "fullstack",
+            "rehearsal",
+            "deno-pilot"
+          ],
+          "default": "fullstack",
+          "description": "Lesson used when opening the recorder. Reload the window after changing."
+        }
+      }
+    }
   },
   "scripts": {
     "test": "node --test test/*.test.cjs",

@@ -24,6 +24,7 @@ function controls() {
   const active = recorder && recorder.state !== 'inactive';
   const busy = ['running', 'paused', 'checkpoint', 'stopping'].includes(state.phase);
   $('run').disabled = !state.available || busy || !!runCountdown;
+  $('startStep').disabled = busy || !!runCountdown;
   $('pauseTyping').disabled = !['running', 'paused'].includes(state.phase);
   $('pauseTyping').textContent = state.phase === 'paused' ? 'Resume typing' : 'Pause typing';
   $('next').disabled = state.phase !== 'checkpoint';
@@ -120,7 +121,7 @@ $('run').onclick = () => {
   $('lessonStatus').textContent = 'Starting in 5 seconds. Switch to the editor.';
   runCountdown = setTimeout(async () => {
     runCountdown = null; runAnchor = performance.now();
-    try { await api('run', { speed: Number($('speed').value) }); } catch (error) { $('lessonStatus').textContent = error.message; }
+    try { await api('run', { speed: Number($('speed').value), startStep: Number($('startStep').value) }); } catch (error) { $('lessonStatus').textContent = error.message; }
     controls();
   }, 5000); controls();
 };

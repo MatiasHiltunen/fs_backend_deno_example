@@ -1,0 +1,87 @@
+{
+  "title": "Editorin sulkupari- ja IntelliSense-koe",
+  "paceMs": 2,
+  "steps": [
+    {
+      "action": "prepare",
+      "directory": "tutorial-output/{{session}}",
+      "title": "Valmistele Deno, IntelliSense ja automaattiset sulut"
+    },
+    {
+      "action": "open",
+      "file": "tutorial-output/{{session}}/deno.json",
+      "title": "Luo projektin komennot ja puolipisteetön tyyli"
+    },
+    {
+      "action": "native",
+      "text": "{\n  \"fmt\": { \"semiColons\": false, \"lineWidth\": 100 },\n  \"tasks\": {\n    \"dev\": \"deno run --check --watch=server,public --allow-read=./data,./migrations,./public --allow-write=./data --allow-net=127.0.0.1:8000 --allow-env=APP_ORIGIN server/main.ts\",\n    \"start\": \"deno run --check --allow-read=./data,./migrations,./public --allow-write=./data --allow-net=127.0.0.1:8000 --allow-env=APP_ORIGIN server/main.ts\",\n    \"migrate\": \"deno run --check --allow-read=./data,./migrations --allow-write=./data scripts/migrate.ts\",\n    \"migration:demo\": \"deno run --check --allow-read=./data,./migrations --allow-write=./data scripts/migration-demo.ts\",\n    \"seed\": \"deno run --check --allow-read=./data,./migrations --allow-write=./data scripts/seed.ts\",\n    \"test\": \"deno test --allow-read=./data,./migrations,./public --allow-write=./data tests/\",\n    \"test:live\": \"deno run --check --allow-net=127.0.0.1:8000 scripts/verify-live.ts\",\n    \"check\": \"deno check server/*.ts scripts/*.ts tests/*.ts && deno fmt --check && deno lint\"\n  }\n}\n",
+      "title": "Luo projektin komennot ja puolipisteetön tyyli",
+      "slowStart": false
+    },
+    {
+      "action": "save",
+      "title": "Tallenna deno.json"
+    },
+    {
+      "action": "open",
+      "file": "tutorial-output/{{session}}/.vscode/settings.json",
+      "title": "Ota sulkuparit, sisennys ja ehdotukset käyttöön"
+    },
+    {
+      "action": "native",
+      "text": "{\n  \"deno.enablePaths\": [\"server\", \"scripts\", \"tests\"],\n  \"deno.lint\": true,\n  \"editor.tabSize\": 2,\n  \"editor.insertSpaces\": true,\n  \"editor.autoClosingBrackets\": \"languageDefined\",\n  \"editor.autoClosingQuotes\": \"languageDefined\",\n  \"editor.autoIndent\": \"full\",\n  \"editor.suggestOnTriggerCharacters\": true,\n  \"editor.quickSuggestions\": { \"other\": \"on\", \"comments\": \"off\", \"strings\": \"off\" },\n  \"javascript.format.semicolons\": \"remove\",\n  \"typescript.format.semicolons\": \"remove\",\n  \"[typescript]\": { \"editor.defaultFormatter\": \"denoland.vscode-deno\" }\n}\n",
+      "title": "Ota sulkuparit, sisennys ja ehdotukset käyttöön",
+      "slowStart": false
+    },
+    {
+      "action": "save",
+      "title": "Tallenna .vscode/settings.json"
+    },
+    {
+      "action": "open",
+      "file": "tutorial-output/{{session}}/.gitignore",
+      "title": "Pidä tietokanta poissa versionhallinnasta"
+    },
+    {
+      "action": "native",
+      "text": "data/*\n!data/.gitkeep\n",
+      "title": "Rajaa tietokannan tiedostot"
+    },
+    {
+      "action": "save",
+      "title": "Tallenna .gitignore"
+    },
+    {
+      "action": "open",
+      "file": "tutorial-output/{{session}}/server/editor-demo.ts",
+      "title": "Kokeile automaattisia sulkuja"
+    },
+    {
+      "action": "native",
+      "text": "// Ensin kokeilemme editoria: se lisää sulkuparin ja sisentää Enterin jälkeen.\nfunction roleLabel(role: string) {\n  // Funktio saa roolin tekstinä ja palauttaa sen isoilla kirjaimilla.\n  return role.toUpperCase()\n}\n\n// IntelliSense täydentää nimen. TypeScript näyttää myös arvon tyypin.\nconst version = Deno.ver",
+      "title": "Avaa lohko, paina Enter ja kirjoita sen sisään",
+      "slowStart": true
+    },
+    {
+      "action": "complete",
+      "expected": "Deno.version",
+      "title": "Hyväksy oikea IntelliSense-ehdotus"
+    },
+    {
+      "action": "native",
+      "text": "\nconsole.log(roleLabel(\"viewer\"), version.deno)\n",
+      "title": "Käytä täydennettyä arvoa"
+    },
+    {
+      "action": "save",
+      "title": "Tallenna editorikoe"
+    },
+    {
+      "action": "terminal",
+      "id": "checks",
+      "command": "cd tutorial-output/{{session}} && deno run --check server/editor-demo.ts",
+      "waitForExit": true,
+      "title": "Suorita juuri kirjoitettu TypeScript"
+    }
+  ]
+}

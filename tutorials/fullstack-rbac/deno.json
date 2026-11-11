@@ -1,0 +1,13 @@
+{
+  "fmt": { "semiColons": false, "lineWidth": 100 },
+  "tasks": {
+    "dev": "deno run --check --watch=server,public --allow-read=./data,./migrations,./public --allow-write=./data --allow-net=127.0.0.1:8000 --allow-env=APP_ORIGIN server/main.ts",
+    "start": "deno run --check --allow-read=./data,./migrations,./public --allow-write=./data --allow-net=127.0.0.1:8000 --allow-env=APP_ORIGIN server/main.ts",
+    "migrate": "deno run --check --allow-read=./data,./migrations --allow-write=./data scripts/migrate.ts",
+    "migration:demo": "deno run --check --allow-read=./data,./migrations --allow-write=./data scripts/migration-demo.ts",
+    "seed": "deno run --check --allow-read=./data,./migrations --allow-write=./data scripts/seed.ts",
+    "test": "deno test --allow-read=./data,./migrations,./public --allow-write=./data tests/",
+    "test:live": "deno run --check --allow-net=127.0.0.1:8000 scripts/verify-live.ts",
+    "check": "deno check server/*.ts scripts/*.ts tests/*.ts && deno fmt --check && deno lint"
+  }
+}

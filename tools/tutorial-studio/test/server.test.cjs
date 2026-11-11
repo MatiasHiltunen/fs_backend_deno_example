@@ -2,6 +2,13 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { startStudio } = require('../server.cjs');
 
+test('a recorder reload selects an available loopback port when the default is occupied', async t => {
+  const first = await startStudio(); t.after(() => first.close());
+  const second = await startStudio(); t.after(() => second.close());
+  assert.notEqual(first.port, second.port);
+  assert.equal((await fetch(`http://127.0.0.1:${second.port}/`)).status, 200);
+});
+
 test('recorder serves without dependencies and blocks unauthenticated or arbitrary controls', async t => {
   const studio = await startStudio({ port: 0 }); t.after(() => studio.close());
   const url = `http://127.0.0.1:${studio.port}`;
