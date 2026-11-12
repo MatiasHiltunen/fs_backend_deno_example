@@ -14,5 +14,5 @@ export function handler(req: Request): Response {
 }
 
 if (import.meta.main) {
-  Deno.serve(handler);
+  Deno.serve({ port: 8000 }, handler);
 }
