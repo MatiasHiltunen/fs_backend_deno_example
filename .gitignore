@@ -2,3 +2,5 @@ uploads
 .vscode
 node_modules
 parsed.html
+.env
+prisma_example

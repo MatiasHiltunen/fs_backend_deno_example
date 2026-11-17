@@ -1,8 +1,21 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-net --allow-read main.ts"
+    "dev": "deno run -A --env-file=.env --allow-env --watch src/index.ts",
+    "build": "deno check src/index.ts",
+    "contract:emit": "deno run -A npm:prisma@8.0.0-rc.33 contract emit",
+    "db:init": "deno run -A --env-file=.env npm:prisma@8.0.0-rc.33 db init",
+    "db:update": "deno run -A --env-file=.env npm:prisma@8.0.0-rc.33 db update",
+    "db:verify": "deno run -A --env-file=.env npm:prisma@8.0.0-rc.33 db verify",
+    "migrate": "deno run -A --env-file=.env npm:prisma@8.0.0-rc.33 db migrate",
+    "migration:plan": "deno run -A --env-file=.env npm:prisma@8.0.0-rc.33 migration plan",
+    "migration:show": "deno run -A --env-file=.env npm:prisma@8.0.0-rc.33 migration show",
+    "migration:status": "deno run -A --env-file=.env npm:prisma@8.0.0-rc.33 migration status",
+    "start": "deno run -A --env-file=.env src/index.ts"
   },
   "imports": {
-    "@std/assert": "jsr:@std/assert@1"
-  }
+    "@std/assert": "jsr:@std/assert@1",
+    "@prisma/orm-postgres": "npm:@prisma/orm-postgres@8.0.0-rc.23",
+    "prisma": "npm:prisma@8.0.0-rc.33"
+  },
+  "nodeModulesDir": "auto"
 }
