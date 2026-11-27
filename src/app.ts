@@ -6,10 +6,13 @@ export type ListUsers = (
 
 export function createHandler(listUsers: ListUsers) {
   return async (request: Request): Promise<Response> => {
+    
     const url = new URL(request.url);
+    
     if (url.pathname !== "/" && url.pathname !== "/api/users") {
       return Response.json({ error: "Not found." }, { status: 404 });
     }
+
     if (request.method !== "GET") {
       return Response.json({ error: "Method not allowed." }, {
         status: 405,
@@ -18,6 +21,7 @@ export function createHandler(listUsers: ListUsers) {
     }
 
     let pagination: UserListOptions;
+    
     try {
       pagination = parsePagination(url.searchParams);
     } catch (error) {

@@ -20,5 +20,9 @@
     "@prisma/orm-postgres": "npm:@prisma/orm-postgres@8.0.0-rc.23",
     "prisma": "npm:prisma@8.0.0-rc.33"
   },
-  "nodeModulesDir": "auto"
+  "nodeModulesDir": "auto",
+  "allowScripts": {
+    "allow": [],
+    "deny": ["npm:esbuild@0.28.2", "npm:koffi@3.3.8"]
+  }
 }
