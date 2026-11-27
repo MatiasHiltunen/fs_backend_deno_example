@@ -1,0 +1,45 @@
+name: Deno ja Hegel
+
+on:
+  pull_request:
+  push:
+    branches: [main, orm]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: hegel_test
+          POSTGRES_PASSWORD: hegel_test
+          POSTGRES_DB: fs_backend_hegel
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U hegel_test -d fs_backend_hegel"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: hegel_test
+      PGPASSWORD: hegel_test
+      PGDATABASE: fs_backend_hegel
+      PRISMA_DISABLE_TELEMETRY: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.6
+      - run: cp .env.example .env
+      - run: deno install --frozen
+      - run: deno task build
+      - run: deno task test
+      - run: deno task db:init
+      - run: deno task test:integration

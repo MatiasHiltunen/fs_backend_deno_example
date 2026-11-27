@@ -1,19 +1,11 @@
-import { createServer } from "node:http";
+import { createHandler } from "./app.ts";
 
-import { listUsers } from "./prisma/users.ts";
-
-const port = Number(Deno.env.get("PORT") ?? 3000);
-
-createServer(async (_request, response) => {
-  try {
-    const users = await listUsers();
-    response.writeHead(200, { "content-type": "application/json" });
-    response.end(JSON.stringify({ users }));
-  } catch (error) {
-    console.error("Failed to query users:", error);
-    response.writeHead(500, { "content-type": "application/json" });
-    response.end(JSON.stringify({ error: "Could not query users yet." }));
+if (import.meta.main) {
+  const port = Number(Deno.env.get("PORT") ?? 8000);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error("PORT must be an integer between 1 and 65535.");
   }
-}).listen(port, "0.0.0.0", () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+
+  const { listUsers } = await import("./prisma/users.ts");
+  Deno.serve({ port, hostname: "0.0.0.0" }, createHandler(listUsers));
+}

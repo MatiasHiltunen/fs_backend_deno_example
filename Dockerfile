@@ -1,16 +1,18 @@
-FROM denoland/deno:2.9.8
+FROM denoland/deno:2.9.6
 
 EXPOSE 8000
 
 WORKDIR /app
 
-COPY main.ts deno.json deno.lock ./
+COPY deno.json deno.lock package.json ./
 
-RUN deno install
+RUN deno install --frozen
 
-RUN deno cache main.ts
+COPY src ./src
+
+RUN deno cache --frozen src/index.ts
 
 USER deno
 
-CMD ["run", "--allow-net", "--allow-env", "main.ts"]
+CMD ["run", "--allow-net", "--allow-env", "--allow-read", "src/index.ts"]
 

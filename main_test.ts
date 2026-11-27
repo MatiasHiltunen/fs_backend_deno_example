@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { deepStrictEqual as assertEquals } from "node:assert/strict";
 import { handler } from "./main.ts";
 
 Deno.test("returns html on /", async () => {

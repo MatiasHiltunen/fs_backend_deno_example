@@ -1,5 +1,9 @@
 {
+  "dependencies": {
+    "@prisma/orm-postgres": "8.0.0-rc.23"
+  },
   "devDependencies": {
+    "@hegeldev/hegel": "0.6.2",
     "prisma": "8.0.0-rc.33"
   }
 }

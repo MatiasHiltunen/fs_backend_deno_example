@@ -4,3 +4,5 @@ node_modules
 parsed.html
 .env
 prisma_example
+.hegel/
+coverage/

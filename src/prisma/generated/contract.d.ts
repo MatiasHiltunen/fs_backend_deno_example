@@ -4,15 +4,15 @@
 import type {
   CodecTypes as PgTypes,
   ParameterizedOutputTypesForTypeParams as PgParameterizedOutputTypes,
-} from '@internal/target-postgres/codec-types';
-import type { QueryOperationTypes as PgTargetQueryOps } from '@internal/target-postgres/operation-types';
+} from '@prisma/orm-postgres/target/codec-types';
+import type { QueryOperationTypes as PgTargetQueryOps } from '@prisma/orm-postgres/target/operation-types';
 
 import type {
   ColumnTypesFromStorage,
   ContractWithTypeMaps,
   RelationKeys,
   TypeMaps as TypeMapsType,
-} from '@internal/sql-contract/types';
+} from '@prisma/orm-postgres/family-contract/types';
 import type {
   Contract as ContractType,
   ExecutionHashBase,
@@ -20,7 +20,7 @@ import type {
   NamespaceId,
   ProfileHashBase,
   StorageHashBase,
-} from '@internal/contract/types';
+} from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
   StorageHashBase<'22dcd85c38731d16e115f4f858f34b80f579a7dc5d822a1187b46fb50b08d6f9'>;
@@ -316,8 +316,8 @@ export namespace Models {
     id: FieldOutputTypes['public']['Task']['id'];
     title: FieldOutputTypes['public']['Task']['title'];
     updatedAt: FieldOutputTypes['public']['Task']['updatedAt'];
-    createdBy: public_User;
-    readonly [RelationKeys]?: 'createdBy';
+    creator: public_User;
+    readonly [RelationKeys]?: 'creator';
   };
   export type public_User = {
     createdAt: FieldOutputTypes['public']['User']['createdAt'];
@@ -504,7 +504,7 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
-              readonly createdBy: {
+              readonly creator: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
                 readonly nullable: false;
